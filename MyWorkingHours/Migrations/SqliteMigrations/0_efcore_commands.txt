@@ -1,0 +1,1 @@
+ dotnet ef migrations add sqlite_"#statement#" --context SqliteDbContext --output-dir Migrations/SqliteMigrations
