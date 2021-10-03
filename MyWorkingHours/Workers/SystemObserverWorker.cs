@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -33,7 +32,7 @@ namespace MyWorkingHours.Workers
                 {
                     await Task.Delay(1000, stoppingToken);
 
-                    var statusStamp = GetStatusTimeStamp(locked);
+                    var statusStamp = new StatusTimeStamp(locked);
 
                     await _dbContext.StatusTimeStamps.AddAsync(statusStamp, stoppingToken);
                     await _dbContext.SaveChangesAsync(stoppingToken);
@@ -42,7 +41,7 @@ namespace MyWorkingHours.Workers
                 {
                     await Task.Delay(1000, stoppingToken);
                     
-                    var statusStamp = GetStatusTimeStamp(locked);
+                    var statusStamp = new StatusTimeStamp(locked);
 
                     await _dbContext.StatusTimeStamps.AddAsync(statusStamp, stoppingToken);
                     await _dbContext.SaveChangesAsync(stoppingToken);
@@ -50,56 +49,36 @@ namespace MyWorkingHours.Workers
             }
         }
 
-        private static StatusTimeStamp GetStatusTimeStamp(bool locked)
-        {
-            var statusStamp = new StatusTimeStamp
-            {
-                MachineName = Environment.MachineName,
-                UserName = Environment.UserName,
-                ScreenLocked = locked,
-                TimeStamp = DateTime.Now,
-                Guid = Guid.NewGuid()
-            };
-            return statusStamp;
-        }
-
         private void SystemEventsOnSessionSwitch(object sender, SessionSwitchEventArgs e)
         {
             switch (e.Reason)
             {
                 case SessionSwitchReason.SessionLock:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch
-                    {
-                        Guid = Guid.NewGuid(),
-                        MachineName = Environment.MachineName,
-                        UserName = Environment.UserName,
-                        SwitchReason = "SessionLock",
-                        TimeStamp = DateTime.Now
-                    });
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionLock"));
                     break;
                 case SessionSwitchReason.SessionUnlock:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch
-                    {
-                        Guid = Guid.NewGuid(),
-                        MachineName = Environment.MachineName,
-                        UserName = Environment.UserName,
-                        SwitchReason = "SessionUnlock",
-                        TimeStamp = DateTime.Now
-                    });
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionUnlock"));
                     break;
                 case SessionSwitchReason.ConsoleConnect:
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("ConsoleConnect"));
                     break;
                 case SessionSwitchReason.ConsoleDisconnect:
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("ConsoleDisconnect"));
                     break;
                 case SessionSwitchReason.RemoteConnect:
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("RemoteConnect"));
                     break;
                 case SessionSwitchReason.RemoteDisconnect:
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("RemoteDisconnect"));
                     break;
                 case SessionSwitchReason.SessionLogon:
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionLogon"));
                     break;
                 case SessionSwitchReason.SessionLogoff:
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionLogoff"));
                     break;
                 case SessionSwitchReason.SessionRemoteControl:
+                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionRemoteControl"));
                     break;
             }
         }
