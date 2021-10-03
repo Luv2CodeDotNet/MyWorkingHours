@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyWorkingHours.Data.DataAccess;
 
-namespace MyWorkingHours.Migrations
+namespace MyWorkingHours.Migrations.SqliteMigrations
 {
     [DbContext(typeof(SqliteDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211003203137_sqlite_add_env_vars_user_Table")]
+    partial class sqlite_add_env_vars_user_Table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
