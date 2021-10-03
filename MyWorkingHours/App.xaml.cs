@@ -68,7 +68,7 @@ namespace MyWorkingHours
                 .MinimumLevel.Information()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .WriteTo.Debug()
-                .WriteTo.File(ApplicationDirectory.GetApplicationDirectory(), rollingInterval: RollingInterval.Day)
+                .WriteTo.File(ApplicationDirectory.GetLogsDirectory(), rollingInterval: RollingInterval.Day)
                 .Enrich.FromLogContext();
         }
 

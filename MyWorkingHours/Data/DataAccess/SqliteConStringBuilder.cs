@@ -7,6 +7,7 @@ namespace MyWorkingHours.Data.DataAccess
     {
         private const string DbName = "db.sqlite";
         private const string DbFileName = "Filename=";
+        private const string DbFolderName = "Database";
 
         /// <summary>
         ///     Generate Sqlite connection string.
@@ -15,10 +16,10 @@ namespace MyWorkingHours.Data.DataAccess
         /// <exception cref="DirectoryNotFoundException">Throws DirectoryNotFoundException if directory is not found</exception>
         public static string GetSqliteConnString()
         {
-            var localAppData = ApplicationDirectory.GetApplicationDirectory();
-            var dbDir = Path.Combine(localAppData, DbName);
+            var subDir = ApplicationDirectory.GetApplicationSubDirectory(DbFolderName);
+            var dbDir = Path.Combine(subDir, DbName);
 
-            var exists = Directory.Exists(localAppData);
+            var exists = Directory.Exists(subDir);
             if (!exists) throw new DirectoryNotFoundException();
 
             return string.Concat(DbFileName, dbDir);
