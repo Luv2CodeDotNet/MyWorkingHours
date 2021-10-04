@@ -16,14 +16,13 @@ using MyWorkingHours.Workers;
 using Serilog;
 using Serilog.Events;
 
-namespace MyWorkingHours
+namespace MyWorkingHours.Root
 {
     /// <summary>
     ///     Interaction logic for App.xaml
     /// </summary>
     public partial class App
     {
-        private static readonly string SqliteConnectionString = SqliteConStringBuilder.GetSqliteConnString();
         private readonly IHost? _host;
         private readonly MainWindow _mainWindow;
         private readonly NotifyIcon _notifyIcon;
@@ -68,7 +67,8 @@ namespace MyWorkingHours
                 .MinimumLevel.Information()
                 .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
                 .WriteTo.Debug()
-                .WriteTo.File(ApplicationDirectory.GetLogsDirectory(), rollingInterval: RollingInterval.Day)
+                .WriteTo.File(ApplicationDirectory.GetApplicationFilePath(SpecialAppFile.LogsFile),
+                    rollingInterval: RollingInterval.Day)
                 .Enrich.FromLogContext();
         }
 
@@ -90,7 +90,7 @@ namespace MyWorkingHours
                     services.AddHostedService<SystemObserverWorker>();
                     services.AddEntityFrameworkSqlite().AddDbContext<SqliteDbContext>((_, builder) =>
                     {
-                        builder.UseSqlite(SqliteConnectionString);
+                        builder.UseSqlite(ApplicationDirectory.GetApplicationFilePath(SpecialAppFile.SqliteDbFile));
                     });
                 });
         }
