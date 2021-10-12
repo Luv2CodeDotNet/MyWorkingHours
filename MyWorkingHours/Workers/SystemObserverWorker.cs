@@ -5,20 +5,23 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
-using MyWorkingHours.Data.DataAccess;
 using MyWorkingHours.Data.Models;
+using MyWorkingHours.Data.Repository.Contracts;
 
 namespace MyWorkingHours.Workers
 {
     public class SystemObserverWorker : BackgroundService
     {
         private readonly ILogger<SystemObserverWorker> _logger;
-        private readonly SqliteDbContext _dbContext;
+        private readonly IStatusTimeStampRepository _stampRepository;
+        private readonly ISessionSwitchRepository _switchRepository;
 
-        public SystemObserverWorker(ILogger<SystemObserverWorker> logger, SqliteDbContext dbContext)
+        public SystemObserverWorker(ILogger<SystemObserverWorker> logger, ISessionSwitchRepository switchRepository,
+            IStatusTimeStampRepository stampRepository)
         {
             _logger = logger;
-            _dbContext = dbContext;
+            _switchRepository = switchRepository;
+            _stampRepository = stampRepository;
             SystemEvents.SessionSwitch += SystemEventsOnSessionSwitch;
         }
 
@@ -27,24 +30,18 @@ namespace MyWorkingHours.Workers
             while (!stoppingToken.IsCancellationRequested)
             {
                 var locked = Process.GetProcessesByName("logonui").Any();
-                
+
                 if (locked)
                 {
                     await Task.Delay(1000, stoppingToken);
-
                     var statusStamp = new StatusTimeStamp(locked);
-
-                    await _dbContext.StatusTimeStamps.AddAsync(statusStamp, stoppingToken);
-                    await _dbContext.SaveChangesAsync(stoppingToken);
+                    await _stampRepository.CreateAsync(statusStamp);
                 }
                 else
                 {
                     await Task.Delay(1000, stoppingToken);
-                    
                     var statusStamp = new StatusTimeStamp(locked);
-
-                    await _dbContext.StatusTimeStamps.AddAsync(statusStamp, stoppingToken);
-                    await _dbContext.SaveChangesAsync(stoppingToken);
+                    await _stampRepository.CreateAsync(statusStamp);
                 }
             }
         }
@@ -54,31 +51,31 @@ namespace MyWorkingHours.Workers
             switch (e.Reason)
             {
                 case SessionSwitchReason.SessionLock:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionLock"));
+                    _switchRepository.CreateAsync(new SessionSwitch("SessionLock"));
                     break;
                 case SessionSwitchReason.SessionUnlock:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionUnlock"));
+                    _switchRepository.CreateAsync(new SessionSwitch("SessionUnlock"));
                     break;
                 case SessionSwitchReason.ConsoleConnect:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("ConsoleConnect"));
+                    _switchRepository.CreateAsync(new SessionSwitch("ConsoleConnect"));
                     break;
                 case SessionSwitchReason.ConsoleDisconnect:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("ConsoleDisconnect"));
+                    _switchRepository.CreateAsync(new SessionSwitch("ConsoleDisconnect"));
                     break;
                 case SessionSwitchReason.RemoteConnect:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("RemoteConnect"));
+                    _switchRepository.CreateAsync(new SessionSwitch("RemoteConnect"));
                     break;
                 case SessionSwitchReason.RemoteDisconnect:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("RemoteDisconnect"));
+                    _switchRepository.CreateAsync(new SessionSwitch("RemoteDisconnect"));
                     break;
                 case SessionSwitchReason.SessionLogon:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionLogon"));
+                    _switchRepository.CreateAsync(new SessionSwitch("SessionLogon"));
                     break;
                 case SessionSwitchReason.SessionLogoff:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionLogoff"));
+                    _switchRepository.CreateAsync(new SessionSwitch("SessionLogoff"));
                     break;
                 case SessionSwitchReason.SessionRemoteControl:
-                    _dbContext.SessionSwitches.Add(new SessionSwitch("SessionRemoteControl"));
+                    _switchRepository.CreateAsync(new SessionSwitch("SessionRemoteControl"));
                     break;
             }
         }

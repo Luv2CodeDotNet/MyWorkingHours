@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MyWorkingHours.Common;
 using MyWorkingHours.Data.DataAccess;
+using MyWorkingHours.Data.Repository.Contracts;
+using MyWorkingHours.Data.Repository.Implementations;
 using MyWorkingHours.Views;
 using MyWorkingHours.Workers;
 using Serilog;
@@ -92,6 +94,9 @@ namespace MyWorkingHours.Root
                     {
                         builder.UseSqlite(ApplicationDirectory.GetApplicationFilePath(SpecialAppFile.SqliteDbFile));
                     });
+                    services.AddScoped<IUserRepository, UserRepository>();
+                    services.AddScoped<ISessionSwitchRepository, SessionSwitchRepository>();
+                    services.AddScoped<IStatusTimeStampRepository, StatusTimeStampRepository>();
                 });
         }
 
